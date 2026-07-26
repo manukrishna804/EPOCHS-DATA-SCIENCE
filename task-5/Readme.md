@@ -177,14 +177,9 @@ The following evaluation metrics were used:
 ---
 
 # 📊 Model Performance Comparison
+![Feature Importance](images/table.png)
 
 
-Model	MAE	MSE	RMSE	R2 Score
-0	Linear Regression	179223.506085	1.563074e+11	395357.297678	0.792360
-1	Decision Tree	127199.764839	9.869651e+10	314160.002840	0.868891
-2	Random Forest	95427.455401	4.785081e+10	218748.269202	0.936435
-
-*(Fill this table with your actual results.)*
 
 ---
 # 📊 Model Analysis
