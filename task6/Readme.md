@@ -2,8 +2,8 @@
 
 ## Participant Details
 
-**Name:** Manu Krishna C K
-**MUID:** *Enter Your MUID Here*
+**Name:** Manukrishna CK
+**MUID:** manukrishnack-1@mulearn
 
 ---
 
@@ -26,7 +26,7 @@ Customer churn is one of the major challenges faced by subscription-based busine
 > *(Replace the image below with a screenshot of `df.head()`.)*
 
 <p align="center">
-  <img src="images/dataset_preview.png" width="900">
+  <img src="images/image.png" width="900">
 </p>
 
 ---
