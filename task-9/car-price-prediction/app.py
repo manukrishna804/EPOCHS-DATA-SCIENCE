@@ -14,13 +14,26 @@ st.set_page_config(
 # -------------------------------
 # Load Model
 # -------------------------------
+from pathlib import Path
+
+# -------------------------------
+# Load Model
+# -------------------------------
+BASE_DIR = Path(__file__).resolve().parent
+
+MODEL_PATH = BASE_DIR / "model" / "model.pkl"
+ENCODER_PATH = BASE_DIR / "model" / "label_encoders.pkl"
+
 try:
-    model = joblib.load("model/model.pkl")
-    label_encoders = joblib.load("model/label_encoders.pkl")
+    model = joblib.load(MODEL_PATH)
+    label_encoders = joblib.load(ENCODER_PATH)
 except Exception as e:
     st.error(f"Error loading model: {e}")
+    st.write("Current directory:", BASE_DIR)
+    st.write("Model path:", MODEL_PATH)
+    st.write("Model exists:", MODEL_PATH.exists())
+    st.write("Encoder exists:", ENCODER_PATH.exists())
     st.stop()
-
 # -------------------------------
 # Sidebar
 # -------------------------------
