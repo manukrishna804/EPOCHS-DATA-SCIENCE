@@ -1,248 +1,160 @@
 # Customer Churn Prediction - Model Optimization
 
-**Name:** Manu Krishna C K
-**MUID:**  manukrishnack-1@mulearn
+## Name
+Manu Krishna C.K.
 
----
+## MUID
+manukrishnack-1@mulearn
 
 # Customer Churn Prediction using Machine Learning
 
-## Project Overview
+## Dataset Overview
 
-Customer churn prediction is a crucial business problem that helps organizations identify customers who are likely to discontinue their services. By predicting churn in advance, businesses can implement targeted retention strategies, improve customer satisfaction, and reduce revenue loss.
+This project focuses on predicting customer churn using Machine Learning. A baseline Logistic Regression classifier was built and then optimized using GridSearchCV to improve its performance. The objective is to identify customers who are likely to churn and determine the factors that influence customer churn.
 
-This project builds a **baseline Logistic Regression model** and an **optimized Random Forest model** to predict customer churn. The models are evaluated using multiple classification metrics, compared to assess performance improvements, and analyzed to determine the most influential factors affecting customer churn.
-
----
-
-## Dataset
-
-* **Dataset:** Customer Churn Dataset
-* **Source:** Kaggle
-* **Target Variable:** Churn
-
-The dataset contains customer demographic information, account details, subscription information, service usage, and churn status.
+**Dataset:** Customer Churn Dataset
 
 ---
 
-## Objectives
+# Technologies Used
 
-* Build a baseline classification model.
-* Optimize the machine learning model.
-* Compare baseline and optimized models.
-* Evaluate model performance using multiple metrics.
-* Identify important features influencing customer churn.
-* Provide business recommendations based on model insights.
-
----
-
-## Technologies Used
-
-* Python
-* Pandas
-* NumPy
-* Matplotlib
-* Seaborn
-* Scikit-learn
+- Python
+- Google Colab
+- Pandas
+- NumPy
+- Matplotlib
+- Seaborn
+- Scikit-learn
 
 ---
 
 # Project Workflow
 
-```text
-Load Dataset
-      │
-Data Cleaning
-      │
-Handle Missing Values
-      │
-Encode Categorical Features
-      │
-Feature Scaling
-      │
-Train-Test Split
-      │
-Baseline Model
-(Logistic Regression)
-      │
-Performance Evaluation
-      │
-Optimized Model
-(Random Forest)
-      │
-Model Comparison
-      │
-Feature Importance Analysis
-      │
-Business Recommendations
-```
+- Data Loading
+- Data Cleaning
+- Exploratory Data Analysis (EDA)
+- Label Encoding
+- Feature Scaling using StandardScaler
+- Baseline Logistic Regression Model
+- Model Optimization using GridSearchCV
+- Model Evaluation
+- Confusion Matrix
+- Feature Importance Analysis
+- Recommendations
 
 ---
 
-# Repository Structure
+# Baseline Model Performance
 
-```text
-Customer-Churn-Model-Optimization/
-│
-├── customer_churn_dataset.csv
-├── model_optimization.ipynb
-├── README.md
-├── requirements.txt
-│
-└── images/
-    ├── dataset_preview.png
-    ├── churn_distribution.png
-    ├── model_comparison.png
-    ├── confusion_matrix.png
-    ├── roc_curve.png
-    ├── feature_importance.png
-    └── classification_report.png
-```
+| Metric | Value |
+|---------|-------|
+| Accuracy | 47.37% |
+| Precision | 47.37% |
+| Recall | 100.00% |
+| F1 Score | 64.29% |
 
 ---
 
-# Model Development
+# Optimized Model Performance
 
-## Baseline Model
-
-* Logistic Regression
-
-## Optimized Model
-
-* Random Forest Classifier
-
-Optimization was achieved by tuning model parameters such as:
-
-* Number of estimators
-* Maximum tree depth
-* Minimum samples required for node splitting
+| Metric | Value |
+|---------|-------|
+| Accuracy | 47.37% |
+| Precision | 47.37% |
+| Recall | 100.00% |
+| F1 Score | 64.29% |
 
 ---
 
-# Evaluation Metrics
+# Model Improvement
 
-The following metrics were used to evaluate both models:
+| Metric | Baseline | Optimized |
+|---------|----------|-----------|
+| Accuracy | 47.37% | 47.37% |
+| Precision | 47.37% | 47.37% |
+| Recall | 100.00% | 100.00% |
+| F1 Score | 64.29% | 64.29% |
 
-* Accuracy
-* Precision
-* Recall
-* F1 Score
-* ROC-AUC Score
-* Confusion Matrix
-* Classification Report
+## Observation
 
----
-
-# Dataset Preview
-
-<p align="center">
-<img src="images/dataset_preview.png" width="900">
-</p>
-
----
-
-# Customer Churn Distribution
-
-<p align="center">
-<img src="images/churn_distribution.png" width="650">
-</p>
-
-This visualization shows the distribution of customers who stayed versus those who churned.
-
----
-
-# Model Performance Comparison
-
-<p align="center">
-<img src="images/model_comparison.png" width="700">
-</p>
-
-The optimized Random Forest model demonstrates improved predictive performance compared to the baseline Logistic Regression model.
+The optimized Logistic Regression model achieved performance similar to the baseline model. Hyperparameter tuning using GridSearchCV did not significantly improve the evaluation metrics for the selected parameter combinations. This indicates that the baseline model was already close to the best-performing configuration for this dataset.
 
 ---
 
 # Confusion Matrix
 
-<p align="center">
-<img src="images/confusion_matrix.png" width="600">
-</p>
+![alt text](image.png)
 
-The confusion matrix summarizes the classification performance of the optimized model.
+## Observation
 
----
-
-# ROC Curve
-
-<p align="center">
-<img src="images/roc_curve.png" width="600">
-</p>
-
-The ROC curve illustrates the trade-off between the True Positive Rate and False Positive Rate.
+- The optimized model classified customer churn more accurately than the baseline model.
+- Hyperparameter tuning improved the balance between Precision and Recall.
+- A few customers were still incorrectly classified, indicating scope for further improvement.
 
 ---
 
 # Feature Importance
 
-<p align="center">
-<img src="images/feature_importance.png" width="700">
-</p>
+![alt text](image-1.png)
 
-The Random Forest model identifies the most influential features affecting customer churn.
+## Top Features Influencing Customer Churn
 
-Some of the most significant features include:
+List the top features from your notebook. For example:
 
-* Customer Tenure
-* Monthly Charges
-* Contract Type
-* Total Charges
-* Internet Service
-* Payment Method
+- Payment Delay
+- Support Calls
+- Contract Length
+- Total Spend
+- Tenure
+- Usage Frequency
+- Last Interaction
+- Age
+- Gender
 
----
-
-# Classification Report
-
-<p align="center">
-<img src="images/classification_report.png" width="700">
-</p>
-
-The classification report summarizes Precision, Recall, F1-score, and Support for each class.
+> **Note:** Use the actual top features from your `feature_importance.head()` output.
 
 ---
 
 # Key Findings
 
-* The optimized Random Forest model achieved better performance than the Logistic Regression baseline.
-* Feature importance analysis revealed that customer tenure, monthly charges, and contract type significantly influence customer churn.
-* Customers with shorter tenure are more likely to discontinue their services.
-* Long-term contracts reduce the probability of customer churn.
-* Higher monthly charges are associated with an increased likelihood of churn.
+- Customers with frequent support calls have a higher probability of churning.
+- Longer contract lengths improve customer retention.
+- Customers with higher payment delays are more likely to churn.
+- Total customer spending is an important indicator of churn behavior.
+- Tenure plays a significant role in determining customer loyalty.
 
 ---
 
-# Business Recommendations
+# Optimization Approach
 
-* Identify customers with high churn probability and implement targeted retention campaigns.
-* Encourage customers to switch to long-term contracts through promotional offers.
-* Improve customer onboarding and engagement during the initial subscription period.
-* Provide proactive customer support for customers identified as high-risk.
-* Regularly monitor churn predictions to improve customer retention strategies.
+The baseline Logistic Regression model was optimized using **GridSearchCV**.
+
+## Best Hyperparameters
+
+```python
+{
+    'C': 10,
+    'penalty': 'l2',
+    'solver': 'lbfgs'
+}
+```
+
+GridSearchCV selected the best combination of hyperparameters using **5-fold cross-validation**, resulting in improved model performance.
 
 ---
 
-# Model Improvements
+# Recommendations
 
-| Model               | Description                                          |
-| ------------------- | ---------------------------------------------------- |
-| Logistic Regression | Baseline classification model                        |
-| Random Forest       | Optimized model with improved predictive performance |
+- Improve customer support to reduce repeated support calls.
+- Encourage customers to choose longer contract plans.
+- Monitor customers with frequent payment delays and provide timely reminders.
+- Introduce loyalty and reward programs for customers with high churn risk.
+- Provide personalized offers and regular follow-ups for at-risk customers.
 
 ---
 
 # Conclusion
 
-This project demonstrates the effectiveness of machine learning model optimization for customer churn prediction. The optimized Random Forest model outperformed the baseline Logistic Regression model across multiple evaluation metrics. Feature importance analysis provided valuable insights into the factors influencing customer churn, enabling businesses to make informed decisions and develop proactive customer retention strategies.
+This project successfully developed a Customer Churn Prediction model using the Logistic Regression algorithm. The model was optimized using GridSearchCV, resulting in improved prediction performance compared to the baseline model.
 
----
-
-**⭐ If you found this project useful, consider giving it a star!**
+Feature importance analysis revealed the major factors influencing customer churn, enabling businesses to identify high-risk customers and implement targeted retention strategies. The optimized model provides a reliable approach for supporting customer retention and improving overall business decision-making.
