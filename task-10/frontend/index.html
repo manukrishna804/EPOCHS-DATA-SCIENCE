@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>📚 AI Study Assistant</h1>
+
+    <textarea
+        id="question"
+        placeholder="Ask any study-related question..."></textarea>
+
+    <button onclick="askAI()">Ask AI</button>
+    <button onclick="clearChat()">Clear</button>
+
+    <div class="response">
+        <h3>AI Response</h3>
+        <div id="answer">
+    Your answer will appear here...
+</div>
+    </div>
+    <button onclick="copyAnswer()">Copy Response</button>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+<footer>
+
+Made with ❤️ using FastAPI + Groq API
+
+</footer>
+</html>
