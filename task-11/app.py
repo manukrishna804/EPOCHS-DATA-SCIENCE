@@ -1,271 +1,287 @@
 import os
 import gradio as gr
 
-# Tidio-style live-chat widget — white body, blue header, bubble chat
-
 CUSTOM_CSS = """
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
 
 :root {
-  --blue: #2f7bf6;
-  --blue-2: #1a6aef;
-  --blue-soft: #e8f1ff;
-  --ink: #1f2937;
-  --muted: #8b95a5;
-  --line: #e8edf3;
-  --widget-w: 400px;
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --ink: #111827;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --line-strong: #d1d5db;
+  --accent: #7c9cff;
+  --accent-ink: #1e293b;
+  --bot: #f8fafc;
+  --user: #eef2ff;
+  --shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  --radius: 16px;
+  --app-max: 820px;
 }
+
+* { box-sizing: border-box; }
 
 html, body, .gradio-container, .main, .wrap, .app, .contain {
-  background: #e9eef5 !important;
-  font-family: "Nunito", sans-serif !important;
+  background: var(--bg) !important;
+  font-family: "IBM Plex Sans", sans-serif !important;
   color: var(--ink) !important;
-  color-scheme: light !important;
-}
-
-/* Kill Gradio auto-dark that paints navy bubbles */
-.dark,
-.dark body,
-.dark .gradio-container,
-.dark .block,
-.dark .bubble-wrap,
-.dark .message,
-.dark .bot,
-.dark .user {
-  background-color: transparent !important;
   color-scheme: light !important;
 }
 
 .gradio-container {
-  max-width: var(--widget-w) !important;
-  margin: 24px auto !important;
+  max-width: var(--app-max) !important;
+  margin: 0 auto !important;
   padding: 0 !important;
+  min-height: 100vh;
 }
 
 footer, .footer { display: none !important; }
 
-/* ===== Widget shell ===== */
-#widget {
-  background: #ffffff;
-  border-radius: 22px;
-  overflow: hidden;
-  box-shadow:
-    0 18px 50px rgba(30, 60, 120, 0.18),
-    0 2px 0 rgba(255,255,255,0.7) inset;
-  border: 1px solid rgba(255,255,255,0.6);
-  animation: popIn 0.45s cubic-bezier(.22,1,.36,1) both;
+/* Kill dark-mode navy leftovers */
+.dark, .dark .block, .dark .bot, .dark .user {
+  color-scheme: light !important;
 }
 
-/* ===== Blue wavy header ===== */
-#chat-header {
-  position: relative;
-  background: linear-gradient(135deg, #4c9bff 0%, #2f7bf6 45%, #1f63e0 100%);
-  color: #fff;
-  padding: 18px 18px 34px;
-  overflow: hidden;
+/* ===== App shell ===== */
+#app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
 }
 
-#chat-header::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 28px;
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 28' preserveAspectRatio='none'%3E%3Cpath d='M0 18 C60 28 100 4 160 14 C230 26 280 4 340 16 C370 22 390 20 400 18 L400 28 L0 28 Z' fill='%23ffffff'/%3E%3C/svg%3E")
-    center bottom / 100% 28px no-repeat;
-}
-
-#chat-header .row {
+/* ===== Header ===== */
+#topbar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  position: relative;
-  z-index: 1;
+  padding: 14px 18px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }
 
-#chat-header .avatar {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #ffe566, #ffc93c);
-  border: 3px solid rgba(255,255,255,0.55);
+#brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#brand .logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #9db4ff, #7c9cff);
   display: grid;
   place-items: center;
-  font-weight: 800;
-  font-size: 1.25rem;
-  color: #1f2937;
-  flex-shrink: 0;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-}
-
-#chat-header .meta {
-  flex: 1;
-  min-width: 0;
-}
-
-#chat-header .meta .small {
-  font-size: 0.78rem;
-  opacity: 0.92;
-  font-weight: 600;
-}
-
-#chat-header .meta .name {
-  font-size: 1.22rem;
-  font-weight: 800;
-  line-height: 1.15;
-  margin-top: 1px;
-}
-
-#chat-header .meta .online {
-  margin-top: 4px;
-  font-size: 0.72rem;
+  color: #0f172a;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  opacity: 0.9;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(124, 156, 255, 0.35);
 }
 
-#chat-header .actions {
-  display: flex;
-  gap: 10px;
-  opacity: 0.95;
-  font-size: 1.15rem;
+#brand .title {
+  font-size: 1.05rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
 }
 
-/* ===== Upload strip ===== */
-#upload-strip {
-  padding: 4px 14px 10px;
-  background: #fff;
-  border-bottom: 1px solid var(--line);
-}
-
-#upload-strip .label-wrap,
-#upload-strip label {
-  font-size: 0.78rem !important;
-  font-weight: 700 !important;
+#clear-btn {
+  background: transparent !important;
+  border: 1px solid var(--line) !important;
   color: var(--muted) !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  border-radius: 10px !important;
+  min-height: 36px !important;
+  padding: 0 14px !important;
+  box-shadow: none !important;
 }
 
-#upload-row {
+#clear-btn:hover {
+  color: var(--ink) !important;
+  border-color: var(--line-strong) !important;
+  background: #f9fafb !important;
+}
+
+/* ===== Body ===== */
+#main-col {
+  flex: 1;
   display: flex;
-  gap: 8px;
-  align-items: stretch;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 18px 110px;
 }
 
-.file-preview, .upload-container, [data-testid="file"],
-#upload-strip .block {
-  background: #f7faff !important;
-  border: 1.5px dashed #b7d2ff !important;
+/* Upload card */
+#doc-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+#doc-card .heading {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 0 0 10px;
+  letter-spacing: 0.02em;
+}
+
+.file-preview,
+.upload-container,
+[data-testid="file"],
+#doc-card .block {
+  background: #f8fafc !important;
+  border: 1.5px dashed #c7d2fe !important;
   border-radius: 14px !important;
   color: var(--ink) !important;
-  min-height: 0 !important;
+  min-height: 96px !important;
 }
 
-#upload-strip button,
-#index-btn {
-  background: var(--blue) !important;
-  color: #fff !important;
-  border: none !important;
-  border-radius: 14px !important;
-  font-weight: 800 !important;
-  min-height: 44px !important;
-  box-shadow: 0 6px 14px rgba(47, 123, 246, 0.28) !important;
+#doc-card .or-label,
+#doc-card span,
+#doc-card label {
+  color: var(--muted) !important;
+  font-weight: 500 !important;
+}
+
+#analyze-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
 }
 
 #statusbox textarea {
-  background: #eef6ff !important;
-  color: var(--blue-2) !important;
-  border: none !important;
+  background: #f8fafc !important;
+  border: 1px solid var(--line) !important;
   border-radius: 12px !important;
-  font-size: 0.78rem !important;
-  font-weight: 700 !important;
-  text-align: center !important;
-  min-height: 34px !important;
-  padding: 6px 10px !important;
+  color: var(--ink) !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  min-height: 44px !important;
 }
 
 #statusbox label { display: none !important; }
 
-/* ===== Chat body ===== */
-#chatbot {
-  background: #ffffff !important;
+#analyze-btn {
+  background: var(--accent) !important;
+  color: var(--accent-ink) !important;
   border: none !important;
-  border-radius: 0 !important;
-  min-height: 380px !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  min-height: 44px !important;
+  min-width: 110px !important;
+  box-shadow: 0 6px 16px rgba(124, 156, 255, 0.35) !important;
 }
 
-#chatbot .wrapper,
-#chatbot .bubble-gap,
-#chatbot [class*="message-row"] {
+#analyze-btn:hover {
+  filter: brightness(0.97);
+  transform: translateY(-1px);
+}
+
+/* Chat */
+#chatbot {
   background: transparent !important;
+  border: none !important;
+  flex: 1;
+  min-height: 360px !important;
 }
 
-/* Force LIGHT bubbles — kill Gradio dark navy */
 #chatbot .bot,
 #chatbot .assistant,
-#chatbot [data-testid="bot"],
-#chatbot .message.bot,
-#chatbot .bubble.bot,
-#chatbot .message-content.bot {
-  background: #ffffff !important;
+#chatbot [data-testid="bot"] {
+  background: var(--surface) !important;
   color: var(--ink) !important;
-  border: 1px solid #eef2f7 !important;
-  border-radius: 18px !important;
-  box-shadow: 0 6px 18px rgba(30, 50, 90, 0.08) !important;
-  font-size: 0.92rem !important;
-  line-height: 1.45 !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 16px 16px 16px 6px !important;
+  box-shadow: var(--shadow) !important;
+  font-size: 0.95rem !important;
+  line-height: 1.5 !important;
 }
 
 #chatbot .user,
-#chatbot [data-testid="user"],
-#chatbot .message.user,
-#chatbot .bubble.user,
-#chatbot .message-content.user {
-  background: linear-gradient(135deg, #4c9bff, #2f7bf6) !important;
-  color: #ffffff !important;
-  border: none !important;
-  border-radius: 18px !important;
-  box-shadow: 0 8px 18px rgba(47, 123, 246, 0.28) !important;
-  font-size: 0.92rem !important;
+#chatbot [data-testid="user"] {
+  background: var(--user) !important;
+  color: var(--ink) !important;
+  border: 1px solid #dde3ff !important;
+  border-radius: 16px 16px 6px 16px !important;
+  font-size: 0.95rem !important;
 }
 
-/* Extra Gradio 5 overrides */
-#chatbot .prose,
-#chatbot p,
-#chatbot span {
-  color: inherit !important;
+#chatbot .bot code,
+#chatbot .assistant code,
+#chatbot code {
+  font-family: "IBM Plex Mono", monospace !important;
+  font-size: 0.75rem !important;
+  background: #eef2ff !important;
+  color: #3730a3 !important;
+  border: 1px solid #e0e7ff !important;
+  border-radius: 8px !important;
+  padding: 4px 8px !important;
+  display: inline-block;
+  margin: 4px 4px 0 0;
 }
 
-#chatbot .user .prose,
-#chatbot .user p,
-#chatbot .user span {
-  color: #ffffff !important;
-}
-
-/* ===== Composer ===== */
-#composer {
-  background: #fff;
+/* Sticky composer */
+#composer-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: min(100%, var(--app-max));
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-top: 1px solid var(--line);
-  padding: 10px 12px 12px;
+  padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+  z-index: 30;
 }
 
 #composer-row {
   display: flex;
   align-items: center;
   gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 6px;
+  box-shadow: var(--shadow);
+}
+
+#plus-btn {
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  border-radius: 50% !important;
+  border: 1px solid var(--line) !important;
+  background: #f8fafc !important;
+  color: var(--muted) !important;
+  font-size: 1.2rem !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
 
 #msgbox textarea {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  font-size: 15px !important;
-  min-height: 44px !important;
-  padding: 10px 6px !important;
+  min-height: 42px !important;
+  font-size: 16px !important;
+  padding: 10px 8px !important;
   color: var(--ink) !important;
-  font-family: "Nunito", sans-serif !important;
 }
 
 #msgbox textarea:focus {
@@ -276,83 +292,68 @@ footer, .footer { display: none !important; }
 #msgbox label { display: none !important; }
 
 #send-btn {
-  width: 48px !important;
-  min-width: 48px !important;
-  max-width: 48px !important;
-  height: 48px !important;
-  min-height: 48px !important;
-  border-radius: 50% !important;
-  padding: 0 !important;
-  background: linear-gradient(145deg, #4c9bff, #1f63e0) !important;
-  color: #fff !important;
+  width: 44px !important;
+  min-width: 44px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  border-radius: 12px !important;
+  background: var(--accent) !important;
+  color: var(--accent-ink) !important;
   border: none !important;
-  font-size: 1.15rem !important;
-  box-shadow: 0 8px 18px rgba(47, 123, 246, 0.35) !important;
-  flex-shrink: 0;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  box-shadow: 0 6px 14px rgba(124, 156, 255, 0.35) !important;
+  padding: 0 !important;
 }
 
 #send-btn:hover {
-  filter: brightness(1.06);
-  transform: translateY(-1px);
+  filter: brightness(0.97);
 }
 
-#clear-btn {
-  background: transparent !important;
-  color: var(--muted) !important;
-  border: none !important;
-  font-weight: 700 !important;
-  font-size: 0.78rem !important;
-  min-width: 48px !important;
-  box-shadow: none !important;
+button.primary {
+  background: var(--accent) !important;
+  color: var(--accent-ink) !important;
 }
 
-#powered {
-  text-align: center;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #a0aab8;
-  padding: 2px 0 10px;
-  background: #fff;
-}
+/* Desktop polish */
+@media (min-width: 900px) {
+  :root { --app-max: 880px; }
 
-#powered span {
-  color: var(--blue);
-}
-
-@keyframes popIn {
-  from { opacity: 0; transform: translateY(16px) scale(0.97); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* Mobile full-bleed */
-@media (max-width: 480px) {
-  .gradio-container {
-    max-width: 100% !important;
-    margin: 0 !important;
+  #main-col {
+    padding: 20px 24px 120px;
+    gap: 16px;
   }
-  #widget {
-    border-radius: 0;
-    min-height: 100vh;
-    box-shadow: none;
+
+  #doc-card {
+    padding: 18px;
   }
+
   #chatbot {
-    min-height: 52vh !important;
+    min-height: 480px !important;
   }
+
+  #topbar {
+    padding: 16px 24px;
+    border-radius: 0 0 0 0;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  #topbar { padding: 12px 14px; }
+  #main-col { padding: 12px 12px 118px; gap: 12px; }
+  #doc-card { padding: 12px; border-radius: 14px; }
+  #analyze-row { flex-direction: column; align-items: stretch; }
+  #analyze-btn { width: 100% !important; }
+  #brand .title { font-size: 0.98rem; }
+  #chatbot { min-height: 42vh !important; }
 }
 """
 
-HEADER_HTML = """
-<div id="chat-header">
-  <div class="row">
-    <div class="avatar">F</div>
-    <div class="meta">
-      <div class="small">Chat with</div>
-      <div class="name">Folio Assistant</div>
-      <div class="online">● We're online</div>
-    </div>
-    <div class="actions" aria-hidden="true">⋮</div>
-  </div>
+TOPBAR_LEFT = """
+<div id="brand">
+  <div class="logo">F</div>
+  <div class="title">Folio Clarity</div>
 </div>
 """
 
@@ -361,16 +362,18 @@ def upload_pdf(file):
     from chatbot import process_pdf
 
     if file is None:
-        return "Attach a PDF to start"
+        return "No PDF selected"
 
     try:
         path = file if isinstance(file, str) else getattr(file, "name", None)
         if not path:
             return "Could not read file"
-        process_pdf(path)
-        return f"Ready · {os.path.basename(path)}"
+        info = process_pdf(path)
+        name = os.path.basename(path)
+        size_mb = os.path.getsize(path) / (1024 * 1024)
+        return f"{name}  ·  {size_mb:.1f} MB  ·  {info}"
     except Exception as exc:
-        return f"Error · {exc}"
+        return f"Analyze failed · {exc}"
 
 
 def chat(message, history):
@@ -393,82 +396,85 @@ def chat(message, history):
     return history, ""
 
 
-def clear_chat():
-    from chatbot import clear_memory
+def clear_all():
+    from chatbot import reset_session
 
-    clear_memory()
-    return [], ""
+    reset_session()
+    return [], "", "No PDF selected"
 
 
-# Force a bright light theme so Gradio stops painting navy cards
 theme = gr.themes.Soft(
     primary_hue="blue",
-    secondary_hue="blue",
+    secondary_hue="slate",
     neutral_hue="slate",
-    font=gr.themes.GoogleFont("Nunito"),
+    font=gr.themes.GoogleFont("IBM Plex Sans"),
+    font_mono=gr.themes.GoogleFont("IBM Plex Mono"),
 ).set(
-    body_background_fill="#e9eef5",
+    body_background_fill="#f3f5f8",
     block_background_fill="#ffffff",
-    block_border_color="#e8edf3",
-    block_label_text_color="#1f2937",
-    body_text_color="#1f2937",
-    button_primary_background_fill="#2f7bf6",
-    button_primary_background_fill_hover="#1a6aef",
-    button_primary_text_color="#ffffff",
-    chatbot_text_size="md",
+    block_border_color="#e5e7eb",
+    body_text_color="#111827",
+    button_primary_background_fill="#7c9cff",
+    button_primary_text_color="#1e293b",
 )
 
 
-with gr.Blocks(title="Folio Chat", theme=theme, css=CUSTOM_CSS) as demo:
-    with gr.Column(elem_id="widget"):
-        gr.HTML(HEADER_HTML)
+with gr.Blocks(title="Folio Clarity", theme=theme, css=CUSTOM_CSS) as demo:
+    with gr.Column(elem_id="app-shell"):
+        with gr.Row(elem_id="topbar"):
+            gr.HTML(TOPBAR_LEFT)
+            clear_btn = gr.Button("CLEAR", elem_id="clear-btn")
 
-        with gr.Column(elem_id="upload-strip"):
-            with gr.Row(elem_id="upload-row"):
+        with gr.Column(elem_id="main-col"):
+            with gr.Column(elem_id="doc-card"):
+                gr.HTML("<p class='heading'>Document</p>")
                 pdf = gr.File(
-                    label="PDF",
+                    label="Drop PDF here or click to browse",
                     file_types=[".pdf"],
                     type="filepath",
-                    scale=3,
-                    height=70,
+                    height=110,
                 )
-                index_btn = gr.Button("Index", elem_id="index-btn", scale=1)
-            status = gr.Textbox(
-                value="Attach a PDF to start",
-                interactive=False,
+                with gr.Row(elem_id="analyze-row"):
+                    status = gr.Textbox(
+                        value="No PDF selected",
+                        interactive=False,
+                        show_label=False,
+                        scale=4,
+                        elem_id="statusbox",
+                    )
+                    analyze_btn = gr.Button("ANALYZE", elem_id="analyze-btn", scale=1)
+
+            chatbot = gr.Chatbot(
                 show_label=False,
-                max_lines=1,
-                elem_id="statusbox",
+                height=460,
+                elem_id="chatbot",
+                type="messages",
+                bubble_full_width=False,
+                placeholder="Analyze a PDF, then ask questions about it…",
             )
 
-        chatbot = gr.Chatbot(
-            show_label=False,
-            height=420,
-            elem_id="chatbot",
-            type="messages",
-            bubble_full_width=False,
-            placeholder="Hi! Index a PDF, then ask me anything about it.",
-        )
-
-        with gr.Column(elem_id="composer"):
+        with gr.Column(elem_id="composer-bar"):
             with gr.Row(elem_id="composer-row"):
+                plus_btn = gr.Button("+", elem_id="plus-btn", scale=0)
                 msg = gr.Textbox(
-                    placeholder="Enter your message...",
+                    placeholder="Ask about the document...",
                     show_label=False,
                     container=False,
                     scale=6,
                     elem_id="msgbox",
                     autofocus=True,
                 )
-                clear_btn = gr.Button("Clear", elem_id="clear-btn", scale=1)
-                send_btn = gr.Button("➤", elem_id="send-btn", scale=1)
+                send_btn = gr.Button("➤", elem_id="send-btn", scale=0)
 
-        gr.HTML('<div id="powered">POWERED BY <span>FOLIO</span></div>')
-
-    index_btn.click(upload_pdf, inputs=pdf, outputs=status)
+    analyze_btn.click(upload_pdf, inputs=pdf, outputs=status)
+    # + focuses workflow back to upload by showing status hint
+    plus_btn.click(
+        lambda: "Use the Document card above to attach a PDF",
+        outputs=status,
+    )
     send_btn.click(chat, inputs=[msg, chatbot], outputs=[chatbot, msg])
     msg.submit(chat, inputs=[msg, chatbot], outputs=[chatbot, msg])
-    clear_btn.click(clear_chat, outputs=[chatbot, msg])
+    clear_btn.click(clear_all, outputs=[chatbot, msg, status])
 
 
 demo.queue(default_concurrency_limit=1)

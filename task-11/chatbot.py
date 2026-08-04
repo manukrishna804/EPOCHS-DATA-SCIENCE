@@ -8,7 +8,7 @@ def process_pdf(pdf_path: str) -> str:
     chunks = load_and_split_pdf(pdf_path)
     create_vector_store(chunks)
     chat_history.clear()
-    return f"Processed {len(chunks)} text chunks. You can start asking questions."
+    return f"{len(chunks)} chunks indexed"
 
 
 def ask_question(question: str) -> str:
@@ -35,8 +35,8 @@ def ask_question(question: str) -> str:
     add_to_history(question, answer)
 
     if pages:
-        page_text = ", ".join(map(str, sorted(set(pages))))
-        answer += f"\n\nSource page(s): {page_text}"
+        chips = " ".join(f"`Pg. {p}`" for p in sorted(set(pages)))
+        answer += f"\n\n{chips}"
 
     return answer
 
