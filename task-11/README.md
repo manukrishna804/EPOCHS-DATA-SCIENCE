@@ -7,7 +7,7 @@ sdk: gradio
 sdk_version: 5.29.0
 app_file: app.py
 pinned: false
-short_description: PDF RAG chatbot with Groq + FastEmbed
+short_description: PDF RAG chatbot with Groq
 ---
 
 # Folio — PDF Question Answering (RAG)
@@ -39,8 +39,7 @@ short_description: PDF RAG chatbot with Groq + FastEmbed
 
 - Python
 - Gradio
-- FastEmbed (ONNX embeddings)
-- NumPy in-memory vector store
+- NumPy TF-IDF vector search (lightweight embeddings)
 - PyPDF
 - Groq API (Llama 3.3)
 
@@ -56,7 +55,7 @@ Conversation memory keeps recent user questions and assistant answers in a sessi
 
 1. Upload a PDF
 2. Extract and chunk text
-3. Embed chunks with FastEmbed
+3. Embed chunks with TF-IDF vectors
 4. Store vectors in memory
 5. On each question, retrieve top matching chunks
 6. Send context + chat history to Groq
@@ -104,15 +103,27 @@ Open **http://127.0.0.1:7860/**
 
 ## Deployment
 
-**Platform:** Hugging Face Spaces (Gradio) — Render free tier (512MB) OOMs with embedding models.
+**Recommended:** Hugging Face Spaces (more RAM than Render free tier).
 
-**Deployment Link:** https://huggingface.co/spaces/manukrishna804/folio-pdf-chat
+**Deployment Link:** _https://huggingface.co/spaces/manukrishna804/folio-pdf-chat_ (create Space, then this URL goes live)
 
-### Space secrets
+### Hugging Face Spaces
 
-In the Space → **Settings** → **Variables and secrets**, add:
+1. Open https://huggingface.co/new-space and sign in
+2. Space name: `folio-pdf-chat`
+3. SDK: **Gradio**
+4. Create the Space, then in **Settings → Variables and secrets** add `GROQ_API_KEY`
+5. Either:
+   - **Files** tab → upload everything from `task-11/`, or
+   - **Settings → Store Space files in GitHub** / sync from `EPOCHS-DATA-SCIENCE` with path `task-11`
 
-- `GROQ_API_KEY` = your Groq API key
+### Render (after slim update)
+
+Root Directory: `task-11`  
+Build: `pip install -r requirements.txt`  
+Start: `python app.py`  
+Env: `GROQ_API_KEY`  
+Then **Clear build cache & deploy** so old torch/onnx packages are not reused.
 
 ---
 
