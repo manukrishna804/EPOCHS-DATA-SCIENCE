@@ -1,75 +1,51 @@
 from pdf_loader import load_and_split_pdf
-from vector_store import create_vector_store, get_retriever
+from vector_store import create_vector_store, search, is_ready, clear_store
 from rag import generate_answer
 from memory import add_to_history, get_history, chat_history
 
-retriever = None
 
-
-def process_pdf(pdf_path):
-    """
-    Process uploaded PDF and create vector database.
-    """
-    global retriever
-
+def process_pdf(pdf_path: str) -> str:
     chunks = load_and_split_pdf(pdf_path)
-
     create_vector_store(chunks)
-
-    retriever = get_retriever()
-
     chat_history.clear()
+    return f"Processed {len(chunks)} text chunks. You can start asking questions."
 
-    return "✅ PDF processed successfully."
 
+def ask_question(question: str) -> str:
+    question = (question or "").strip()
+    if not question:
+        return "Please enter a question."
 
-def ask_question(question):
-    """
-    Ask a question about the uploaded PDF.
-    """
+    if not is_ready():
+        return "Please upload and process a PDF first."
 
-    global retriever
+    docs = search(question, k=4)
 
-    if retriever is None:
-        return "Please upload a PDF first."
-
-    # Retrieve relevant documents
-    docs = retriever.invoke(question)
-
-    context = ""
+    context_parts = []
     pages = []
-
     for doc in docs:
-        context += doc.page_content + "\n\n"
-
-        page = doc.metadata.get("page")
+        context_parts.append(doc["page_content"])
+        page = doc["metadata"].get("page")
         if page is not None:
-            pages.append(page + 1)   # Convert from 0-based to 1-based page numbering
+            pages.append(page + 1)
 
-    # Previous conversation
+    context = "\n\n".join(context_parts)
     history = get_history()
-
-    # Generate answer
-    answer = generate_answer(
-        context=context,
-        history=history,
-        question=question
-    )
-
-    # Save conversation
+    answer = generate_answer(context=context, history=history, question=question)
     add_to_history(question, answer)
 
-    # Add source pages
     if pages:
-        pages = sorted(set(pages))
-        page_text = ", ".join(map(str, pages))
-        answer += f"\n\n📄 Source Page(s): {page_text}"
+        page_text = ", ".join(map(str, sorted(set(pages))))
+        answer += f"\n\nSource page(s): {page_text}"
 
     return answer
 
 
 def clear_memory():
-    """
-    Clear conversation history.
-    """
     chat_history.clear()
+
+
+def reset_session():
+    """Clear chat and vector store (new document session)."""
+    chat_history.clear()
+    clear_store()

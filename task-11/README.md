@@ -1,206 +1,104 @@
-# 📄 PDF Question Answering Application using RAG
+# Folio — PDF Question Answering (RAG)
 
 ## Participant Details
 
-- **Name:** Manukrisha CK
+- **Name:** Manukrishna CK
 - **MUID:** manukrishnack-1@mulearn
 
 ---
 
-# 📖 Project Overview
+## Overview
 
-This project is a **PDF Question Answering Application** built using **Retrieval-Augmented Generation (RAG)**. It enables users to upload any PDF document and ask questions related to its content. The system retrieves the most relevant information from the uploaded document using semantic search and generates accurate, context-aware answers using a Large Language Model (LLM).
+**Folio** is a PDF question-answering app built with Retrieval-Augmented Generation (RAG). Upload a PDF, ask questions, and get answers grounded in the document — with short conversation memory for follow-ups.
 
-The application also supports **conversation memory**, allowing users to ask follow-up questions naturally without repeating previous context.
-
----
-
-# 🚀 Features
-
-- 📄 Upload PDF documents
-- ✂️ Automatic text chunking
-- 🔎 Semantic search using vector embeddings
-- 🧠 Retrieval-Augmented Generation (RAG)
-- 🤖 Groq Llama 3 LLM integration
-- 💬 Conversation memory for follow-up questions
-- 🌐 Interactive Gradio web interface
-- ⚡ Fast and accurate document question answering
+Optimized for **Render free tier** (lightweight ONNX embeddings, no PyTorch/CUDA).
 
 ---
 
-# 🛠️ Technologies Used
+## Features
+
+- Upload and process PDF documents
+- Text chunking and semantic retrieval
+- Groq Llama 3.3 answers grounded in retrieved context
+- Conversation memory for follow-up questions
+- Clean white Gradio UI
+
+---
+
+## Stack
 
 - Python
-- LangChain
-- ChromaDB
-- PyPDFLoader
-- Sentence Transformers
-- Groq API
 - Gradio
-- Python Dotenv
+- FastEmbed (ONNX embeddings)
+- NumPy in-memory vector search
+- PyPDF
+- Groq API
 
 ---
 
-# 🏗️ Project Architecture
+## Project structure
 
 ```
-                Upload PDF
-                     │
-                     ▼
-            PyPDFLoader
-                     │
-                     ▼
-        Recursive Character Splitter
-                     │
-                     ▼
-     Sentence Transformer Embeddings
-                     │
-                     ▼
-               ChromaDB
-                     │
-─────────────────────────────────────────
-User Question
-        │
-        ▼
-Retrieve Relevant Chunks
-        │
-        ▼
-Conversation Memory
-        │
-        ▼
-Groq Llama 3
-        │
-        ▼
-Generated Answer
-```
-
----
-
-# 📂 Project Structure
-
-```
-PDF-RAG-Chatbot/
-│
-├── app.py
-├── chatbot.py
-├── pdf_loader.py
-├── vector_store.py
-├── rag.py
-├── memory.py
+task-11/
+├── app.py              # Gradio UI
+├── chatbot.py          # Orchestration
+├── pdf_loader.py       # PDF load + chunk
+├── vector_store.py     # Embeddings + search
+├── rag.py              # Groq LLM
+├── memory.py           # Chat history
 ├── requirements.txt
-├── README.md
-├── .env.example
-├── uploads/
-└── chroma_db/
+├── render.yaml
+├── runtime.txt
+└── .env.example
 ```
 
 ---
 
-# 🧠 Memory Implementation
-
-Conversation memory is implemented by maintaining the previous user questions and assistant responses during the session. Each new query is combined with the previous conversation before sending it to the LLM, allowing the chatbot to understand follow-up questions and maintain context throughout the interaction.
-
----
-
-# ⚙️ How It Works
-
-1. Upload a PDF document.
-2. Extract text using PyPDFLoader.
-3. Split the text into smaller chunks.
-4. Generate embeddings using Sentence Transformers.
-5. Store embeddings in ChromaDB.
-6. Ask questions about the uploaded PDF.
-7. Retrieve the most relevant chunks.
-8. Send the retrieved context and conversation history to the Groq LLM.
-9. Display the generated answer to the user.
-
----
-
-# ▶️ Installation
-
-Clone the repository:
-
-```bash
-git clone <your-github-repository>
-```
-
-Navigate into the project:
-
-```bash
-cd PDF-RAG-Chatbot
-```
-
-Create a virtual environment:
+## Local setup
 
 ```bash
 python -m venv venv
-```
-
-Activate it:
-
-### Windows
-
-```bash
+# Windows
 venv\Scripts\activate
-```
-
-### Linux / macOS
-
-```bash
+# macOS/Linux
 source venv/bin/activate
-```
 
-Install dependencies:
-
-```bash
 pip install -r requirements.txt
 ```
 
-Create a `.env` file:
+Create `.env`:
 
 ```env
-GROQ_API_KEY=YOUR_GROQ_API_KEY
+GROQ_API_KEY=your_groq_api_key_here
 ```
 
-Run the application:
+Run:
 
 ```bash
 python app.py
 ```
 
----
-
-# 🎯 Challenges Faced
-
-- Selecting appropriate chunk size and overlap for better retrieval.
-- Managing semantic search efficiently using ChromaDB.
-- Integrating Groq API for context-aware responses.
-- Maintaining conversation history for follow-up questions.
-- Building an interactive and user-friendly Gradio interface.
+Open **http://127.0.0.1:7860/**
 
 ---
 
-# 🚀 Future Improvements
+## Deploy on Render
 
-- Support multiple PDF uploads.
-- Display source page references for answers.
-- Add PDF summarization.
-- Support DOCX and TXT files.
-- Enable persistent chat history.
-- Deploy with authentication for secure access.
+1. Push this folder to GitHub.
+2. On [Render](https://dashboard.render.com) → **New** → **Blueprint**.
+3. Select the repo and confirm `task-11/render.yaml` (or set root directory to `task-11`).
+4. Add env var `GROQ_API_KEY`.
+5. Deploy.
 
----
+Manual web service settings if not using Blueprint:
 
-# 🌐 Deployment
-
-**Deployment Link:**
-
-_Add your Hugging Face Spaces or Render deployment link here._
+- **Root Directory:** `task-11`
+- **Build Command:** `pip install -r requirements.txt`
+- **Start Command:** `python app.py`
+- **Python version:** `3.11.9`
 
 ---
 
+## License
 
-
-# 📜 License
-
-This project was developed as part of **Epochs '26 – Assignment 11** for educational purposes.
+Built for **Epochs '26 – Assignment 11** (educational use).

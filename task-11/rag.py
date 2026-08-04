@@ -2,48 +2,47 @@ import os
 from dotenv import load_dotenv
 from groq import Groq
 
-# Load environment variables
 load_dotenv()
 
-# Initialize Groq client
-client = Groq(
-    api_key=os.getenv("GROQ_API_KEY")
-)
+_client = None
 
 
-def generate_answer(context, history, question):
+def get_client() -> Groq:
+    global _client
+    if _client is None:
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            raise RuntimeError("GROQ_API_KEY is not set.")
+        _client = Groq(api_key=api_key)
+    return _client
 
-    prompt = f"""
-You are a helpful AI assistant.
+
+def generate_answer(context: str, history: str, question: str) -> str:
+    prompt = f"""You are a helpful document assistant.
 
 Use the previous conversation and the retrieved context to answer the user's question.
 
 Previous Conversation:
-{history}
+{history or "(none)"}
 
 Context:
-{context}
+{context or "(no context retrieved)"}
 
 Current Question:
 {question}
 
 Instructions:
 - Answer only using the provided context.
-- If the answer is not found in the context, reply:
-"I couldn't find that information in the uploaded PDF."
-
-Answer:
+- If the answer is not found in the context, reply exactly:
+I couldn't find that information in the uploaded PDF.
+- Be clear and concise.
 """
 
-    response = client.chat.completions.create(
+    response = get_client().chat.completions.create(
         model="llama-3.3-70b-versatile",
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
+        messages=[{"role": "user", "content": prompt}],
         temperature=0.2,
+        max_tokens=1024,
     )
 
     return response.choices[0].message.content
