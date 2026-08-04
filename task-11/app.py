@@ -234,13 +234,19 @@ with gr.Blocks(title="Folio — PDF Chat", theme=theme, css=CUSTOM_CSS) as demo:
     clear_btn.click(clear_chat, outputs=[chatbot, msg])
 
 
+# Hugging Face Spaces imports this module and finds `demo`
+demo.queue(default_concurrency_limit=1)
+
 if __name__ == "__main__":
-    on_render = "PORT" in os.environ or "RENDER" in os.environ
+    # Spaces / Render / Railway set PORT; bind all interfaces there
+    hosted = any(
+        key in os.environ
+        for key in ("PORT", "RENDER", "SPACE_ID", "SPACE_HOST")
+    )
     port = int(os.environ.get("PORT", 7860))
 
-    demo.queue(default_concurrency_limit=1)
     demo.launch(
-        server_name="0.0.0.0" if on_render else "127.0.0.1",
+        server_name="0.0.0.0" if hosted else "127.0.0.1",
         server_port=port,
         share=False,
         show_error=True,

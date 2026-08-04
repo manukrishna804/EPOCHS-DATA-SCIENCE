@@ -15,10 +15,17 @@ _store = {
 def get_embedding_model():
     global _embedding_model
     if _embedding_model is None:
+        import os
         from fastembed import TextEmbedding
 
-        # Small ONNX model — fits Render free-tier memory
-        _embedding_model = TextEmbedding(model_name="BAAI/bge-small-en-v1.5")
+        # Keep ONNX sessions small on free hosts
+        os.environ.setdefault("OMP_NUM_THREADS", "1")
+        os.environ.setdefault("ORT_NUM_THREADS", "1")
+
+        _embedding_model = TextEmbedding(
+            model_name="sentence-transformers/all-MiniLM-L6-v2",
+            threads=1,
+        )
     return _embedding_model
 
 

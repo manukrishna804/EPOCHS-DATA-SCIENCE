@@ -5,3 +5,5 @@ __pycache__/
 chroma_db/
 uploads/
 .DS_Store
+_day11.txt
+*.pdf

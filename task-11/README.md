@@ -1,3 +1,15 @@
+---
+title: Folio PDF Chat
+emoji: 📄
+colorFrom: teal
+colorTo: blue
+sdk: gradio
+sdk_version: 5.29.0
+app_file: app.py
+pinned: false
+short_description: PDF RAG chatbot with Groq + FastEmbed
+---
+
 # Folio — PDF Question Answering (RAG)
 
 ## Participant Details
@@ -7,11 +19,9 @@
 
 ---
 
-## Overview
+## Project Overview
 
-**Folio** is a PDF question-answering app built with Retrieval-Augmented Generation (RAG). Upload a PDF, ask questions, and get answers grounded in the document — with short conversation memory for follow-ups.
-
-Optimized for **Render free tier** (lightweight ONNX embeddings, no PyTorch/CUDA).
+**Folio** is a PDF question-answering app built with Retrieval-Augmented Generation (RAG). Upload a PDF, ask questions, and get answers grounded in the document — with conversation memory for natural follow-ups.
 
 ---
 
@@ -25,44 +35,56 @@ Optimized for **Render free tier** (lightweight ONNX embeddings, no PyTorch/CUDA
 
 ---
 
-## Stack
+## Technologies Used
 
 - Python
 - Gradio
 - FastEmbed (ONNX embeddings)
-- NumPy in-memory vector search
+- NumPy in-memory vector store
 - PyPDF
-- Groq API
+- Groq API (Llama 3.3)
 
 ---
 
-## Project structure
+## Memory Implementation
+
+Conversation memory keeps recent user questions and assistant answers in a session list. Each new query is sent to the LLM together with that history and the retrieved PDF chunks, so follow-up questions work without repeating earlier context. History is capped (last 12 turns) to keep memory usage low.
+
+---
+
+## How It Works
+
+1. Upload a PDF
+2. Extract and chunk text
+3. Embed chunks with FastEmbed
+4. Store vectors in memory
+5. On each question, retrieve top matching chunks
+6. Send context + chat history to Groq
+7. Show the grounded answer (with source pages when available)
+
+---
+
+## Project Structure
 
 ```
 task-11/
-├── app.py              # Gradio UI
-├── chatbot.py          # Orchestration
-├── pdf_loader.py       # PDF load + chunk
-├── vector_store.py     # Embeddings + search
-├── rag.py              # Groq LLM
-├── memory.py           # Chat history
+├── app.py
+├── chatbot.py
+├── pdf_loader.py
+├── vector_store.py
+├── rag.py
+├── memory.py
 ├── requirements.txt
-├── render.yaml
-├── runtime.txt
 └── .env.example
 ```
 
 ---
 
-## Local setup
+## Local Setup
 
 ```bash
 python -m venv venv
-# Windows
-venv\Scripts\activate
-# macOS/Linux
-source venv/bin/activate
-
+venv\Scripts\activate   # Windows
 pip install -r requirements.txt
 ```
 
@@ -72,8 +94,6 @@ Create `.env`:
 GROQ_API_KEY=your_groq_api_key_here
 ```
 
-Run:
-
 ```bash
 python app.py
 ```
@@ -82,20 +102,34 @@ Open **http://127.0.0.1:7860/**
 
 ---
 
-## Deploy on Render
+## Deployment
 
-1. Push this folder to GitHub.
-2. On [Render](https://dashboard.render.com) → **New** → **Blueprint**.
-3. Select the repo and confirm `task-11/render.yaml` (or set root directory to `task-11`).
-4. Add env var `GROQ_API_KEY`.
-5. Deploy.
+**Platform:** Hugging Face Spaces (Gradio) — Render free tier (512MB) OOMs with embedding models.
 
-Manual web service settings if not using Blueprint:
+**Deployment Link:** https://huggingface.co/spaces/manukrishna804/folio-pdf-chat
 
-- **Root Directory:** `task-11`
-- **Build Command:** `pip install -r requirements.txt`
-- **Start Command:** `python app.py`
-- **Python version:** `3.11.9`
+### Space secrets
+
+In the Space → **Settings** → **Variables and secrets**, add:
+
+- `GROQ_API_KEY` = your Groq API key
+
+---
+
+## Challenges Faced
+
+- Render free instances (512MB) crash when loading embedding runtimes
+- Balancing retrieval quality with a lightweight stack suitable for free hosting
+- Keeping conversation memory useful without unbounded RAM growth
+
+---
+
+## Future Improvements
+
+- Multi-PDF support
+- Persistent vector store across restarts
+- Document summarization
+- Auth for private documents
 
 ---
 
